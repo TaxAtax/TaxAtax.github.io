@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaxJS 官方文档</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<!-- ======= -->
+<header class="topbar">
+  <button class="menu-toggle" id="menuToggle" type="button" aria-label="切换菜单">☰</button>
+  <a class="brand" href="#intro">Tax<span>JS</span></a>
+  <span class="badge">v1.0</span>
+
+  <span class="tagline">轻量级 · 链式调用 · 零构建</span>
+
+  <!-- 下载 -->
+  <a class="download-btn" href="TaxJS.js" download="TaxJS.js">
+    <svg viewBox="0 0 16 16" aria-hidden="true">
+      <path fill="currentColor"
+        d="M8 1.5a.75.75 0 0 1 .75.75v6.19l2.22-2.22a.75.75 0 1 1 1.06 1.06l-3.5 3.5a.75.75 0 0 1-1.06 0l-3.5-3.5a.75.75 0 1 1 1.06-1.06l2.22 2.22V2.25A.75.75 0 0 1 8 1.5ZM2.5 11a.75.75 0 0 1 .75.75v1.5c0 .138.112.25.25.25h9a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 12.5 15h-9A1.75 1.75 0 0 1 1.75 13.25v-1.5A.75.75 0 0 1 2.5 11Z"/>
+    </svg>
+    <span>下载 TaxJS.js</span>
+  </a>
+</header>   
+<!-- ======= -->
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <p class="nav-title">目录</p>
+    <nav class="nav" id="sidebarNav"></nav>
+  </aside>
+
+  <main class="content">
+
+    <!-- ==================== 介绍 ==================== -->
+    <section id="intro" data-title="介绍">
+      <h1>TaxJS</h1>
+      <p class="lead">一个轻量级、链式调用的 JavaScript 工具库，提供 DOM 操作、动画、数组/对象扩展、AJAX 与前端路由能力。</p>
+      <ul class="feature-list">
+        <li><strong>零构建</strong>单文件引入，无任何依赖</li>
+        <li><strong>链式调用</strong>DOM 与数组方法均返回自身，可连续书写</li>
+        <li><strong>一站集成</strong>选择器、动画、AJAX、路由开箱即用</li>
+      </ul>
+      <p class="note">本库通过扩展原生原型（<code>Element</code>、<code>NodeList</code>、<code>Array</code>、<code>Object</code>）提供链式 API，请在业务代码之前引入。</p>
+    </section>
+
+    <!-- ==================== 快速开始 ==================== -->
+    <section id="getting-started" data-title="快速开始">
+      <h2>快速开始</h2>
+      <p>TaxJS 是单文件库，直接通过 <code>&lt;script&gt;</code> 引入即可，无需构建：</p>
+      <pre><code>&lt;script src="TaxJS.js"&gt;&lt;/script&gt;</code></pre>
+      <p>引入之后即可使用全部能力：</p>
+      <pre><code>// 选择元素
+const box = t('#box');
+
+// 链式操作
+t('#box')
+  .sty({ background: 'red', width: '100px' })
+  .addCls('active')
+  .on('click', () =&gt; console.log('clicked'))
+  .animate('fadein');
+
+// 数组
+const arr = [3, 1, 2].backAdd(4).swap(0, 1).uni();
+
+// AJAX
+ajax.get('/api/data', (err, res) =&gt; {
+  if (err) return console.error(err);
+  console.log(JSON.parse(res));
+});
+
+// 路由
+t.router
+  .register('/', () =&gt; console.log('home'))
+  .register('/about', () =&gt; console.log('about'))
+  .init();</code></pre>
+    </section>
+
+    <!-- ==================== 选择器 ==================== -->
+    <section id="selector" data-title="元素选择器 t">
+      <h2>元素选择器 <code>t</code></h2>
+      <p><code>t</code> 是一个函数，同时挂载了若干静态方法。</p>
+
+      <h3><code>t(selector)</code></h3>
+      <p>使用 <code>document.querySelectorAll</code> 查询元素。</p>
+      <table>
+        <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>selector</code></td><td>string</td><td>CSS 选择器</td></tr>
+        </tbody>
+      </table>
+      <p><strong>返回值：</strong></p>
+      <ul>
+        <li>匹配 1 个 → 返回该 <code>Element</code></li>
+        <li>匹配多个 → 返回 <code>NodeList</code></li>
+        <li>无匹配 / 参数非字符串 → 打印错误并返回 <code>null</code></li>
+      </ul>
+      <pre><code>t('#id');          // 单个元素
+t('.item');        // 多个 → NodeList
+t('.not-exist');   // null + 控制台错误</code></pre>
+
+      <h3><code>t.getByCls(cls)</code></h3>
+      <p>按类名获取元素（基于 <code>getElementsByClassName</code>）。</p>
+      <p><strong>返回值：</strong><code>Element</code>（1 个）/ <code>Array</code>（多个）/ <code>[]</code>（无匹配）</p>
+      <pre><code>t.getByCls('card');</code></pre>
+
+      <h3><code>t.getById(id)</code></h3>
+      <p>按 id 获取元素，返回 <code>Element</code> 或 <code>null</code>。</p>
+      <pre><code>t.getById('app');</code></pre>
+
+      <h3><code>t.create(tag, [parent])</code></h3>
+      <p>创建元素并插入 DOM，返回新建的 <code>Element</code>。</p>
+      <table>
+        <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>tag</code></td><td>string</td><td>标签名</td></tr>
+          <tr><td><code>parent</code></td><td>Element</td><td>可选，缺省插入 <code>document.body</code></td></tr>
+        </tbody>
+      </table>
+      <pre><code>const div = t.create('div', document.body);
+const span = t.create('span'); // 插入 body</code></pre>
+    </section>
+
+    <!-- ==================== Element 扩展 ==================== -->
+    <section id="element" data-title="Element 扩展">
+      <h2>DOM 元素方法</h2>
+      <p>以下方法均挂在 <code>Element.prototype</code> 上，标注返回 <code>this</code> 的方法支持链式调用。</p>
+
+      <h3><code>.sty(style, [value])</code></h3>
+      <p>设置样式，支持单个样式或批量对象。返回 <code>this</code>。</p>
+      <pre><code>el.sty('color', 'red');
+el.sty({ color: 'red', fontSize: '14px' });</code></pre>
+
+      <h3><code>.html(content)</code></h3>
+      <p>设置 <code>innerHTML</code>，返回 <code>this</code>。</p>
+      <pre><code>el.html('&lt;b&gt;Hello&lt;/b&gt;');</code></pre>
+
+      <h3><code>.text(content)</code></h3>
+      <p>设置 <code>innerText</code>，返回 <code>this</code>。</p>
+      <pre><code>el.text('纯文本');</code></pre>
+
+      <h3><code>.val([content])</code></h3>
+      <p>获取或设置 <code>value</code>。有参 → 返回 <code>this</code>；无参 → 返回 <code>value</code>。</p>
+      <pre><code>el.val('新值');   // 设置，返回 this
+el.val();         // 获取，返回字符串</code></pre>
+
+      <h3><code>.addCls(cls)</code> / <code>.delCls(cls)</code></h3>
+      <p>添加 / 删除类名，返回 <code>this</code>。</p>
+      <pre><code>el.addCls('active');
+el.delCls('active');</code></pre>
+
+      <h3><code>.getCls(cls)</code></h3>
+      <p>判断是否包含某类名，返回 <code>boolean</code>。</p>
+      <pre><code>el.getCls('active'); // true / false</code></pre>
+
+      <h3><code>.getClsList()</code></h3>
+      <p>返回 <code>className</code> 字符串。</p>
+      <pre><code>el.getClsList(); // "active big"</code></pre>
+
+      <h3><code>.attset(att, value)</code> / <code>.attdel(att)</code> / <code>.attget(att)</code></h3>
+      <p>属性设置 / 删除 / 获取。<code>attset</code>、<code>attdel</code> 返回 <code>this</code>；<code>attget</code> 返回属性值。</p>
+      <pre><code>el.attset('data-id', '123');
+el.attget('data-id'); // "123"
+el.attdel('data-id');</code></pre>
+
+      <h3><code>.parent()</code></h3>
+      <p>返回父元素 <code>parentElement</code>。</p>
+      <pre><code>el.parent();</code></pre>
+
+      <h3><code>.child([index])</code></h3>
+      <p>无参返回 <code>HTMLCollection</code>；有参返回对应子元素，不存在则为 <code>null</code>。</p>
+      <pre><code>el.child();    // HTMLCollection
+el.child(0);   // 第一个子元素
+el.child(5);   // 不存在 → null</code></pre>
+
+      <h3><code>.brother()</code></h3>
+      <p>返回除自身外的所有兄弟元素数组。</p>
+      <pre><code>el.brother(); // [Element, Element, ...]</code></pre>
+
+      <h3><code>.on(event, handler, [options])</code></h3>
+      <p><code>addEventListener</code> 的封装，返回 <code>this</code>。</p>
+      <pre><code>el.on('click', e =&gt; console.log(e));
+el.on('scroll', handler, { passive: true });</code></pre>
+    </section>
+
+    <!-- ==================== NodeList ==================== -->
+    <section id="nodelist" data-title="NodeList 扩展">
+      <h2>NodeList 扩展</h2>
+
+      <h3><code>nodeList.sty(style, [value])</code></h3>
+      <p>批量设置样式，行为同 <code>Element.sty</code>，内部遍历每个元素。返回 <code>this</code>（NodeList）。</p>
+      <pre><code>t('.item').sty('color', 'blue');
+t('.item').sty({ margin: '4px' });</code></pre>
+    </section>
+
+    <!-- ==================== 动画 ==================== -->
+    <section id="animate" data-title="动画 animate">
+      <h2>动画 <code>animate</code></h2>
+
+      <h3><code>el.animate(type, [duration])</code></h3>
+      <table>
+        <thead><tr><th>参数</th><th>类型</th><th>默认</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>type</code></td><td>string</td><td>—</td><td>动画类型</td></tr>
+          <tr><td><code>duration</code></td><td>number</td><td><code>400</code></td><td>时长（毫秒，正数）</td></tr>
+        </tbody>
+      </table>
+      <p><strong>支持的动画类型：</strong></p>
+      <table>
+        <thead><tr><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>show</code> / <code>fadein</code></td><td>淡入显示</td></tr>
+          <tr><td><code>hide</code> / <code>fadeout</code></td><td>淡出隐藏（结束后 <code>display:none</code>）</td></tr>
+          <tr><td><code>slideup</code></td><td>向上滑动收起</td></tr>
+          <tr><td><code>slidedown</code></td><td>向下滑动展开</td></tr>
+          <tr><td><code>toggle</code></td><td>根据当前可见状态切换 show / hide</td></tr>
+        </tbody>
+      </table>
+      <pre><code>el.animate('fadein');
+el.animate('slideup', 600);
+el.animate('toggle');</code></pre>
+
+      <p class="note">
+        同一元素动画进行中再次调用会被跳过（<code>_isAnimating</code> 标志）；
+        类型非字符串、时长非正数会抛出 <code>Error</code>；
+        未知类型打印警告并返回。
+      </p>
+    </section>
+
+    <!-- ==================== 数学工具 ==================== -->
+    <section id="math" data-title="数学工具 tMa">
+      <h2>数学工具 <code>tMa</code></h2>
+      <table>
+        <thead><tr><th>方法</th><th>说明</th><th>示例</th></tr></thead>
+        <tbody>
+          <tr><td><code>tMa.tu(v)</code></td><td>向上取整</td><td><code>tMa.tu(1.1)</code> → <code>2</code></td></tr>
+          <tr><td><code>tMa.td(v)</code></td><td>向下取整</td><td><code>tMa.td(1.9)</code> → <code>1</code></td></tr>
+          <tr><td><code>tMa.tr(v, p)</code></td><td>四舍五入到 <code>p</code> 位小数</td><td><code>tMa.tr(3.14159, 2)</code> → <code>3.14</code></td></tr>
+        </tbody>
+      </table>
+      <pre><code>tMa.tu(2.01);      // 3
+tMa.td(2.99);      // 2
+tMa.tr(1.2345, 2); // 1.23</code></pre>
+    </section>
+
+    <!-- ==================== 数组扩展 ==================== -->
+    <section id="array" data-title="数组扩展">
+      <h2>数组扩展</h2>
+      <p>以下方法挂在 <code>Array.prototype</code> 上，除 <code>uni</code>、<code>findAll</code> 外均返回 <code>this</code>，支持链式调用。</p>
+
+      <h3><code>.atg(...arrays)</code></h3>
+      <p>将多个数组的元素追加到当前数组。</p>
+      <pre><code>[1].atg([2, 3], [4]); // [1, 2, 3, 4]</code></pre>
+
+      <h3>独立函数 <code>atg(...arrays)</code></h3>
+      <p>扁平化合并所有参数，返回新数组。</p>
+      <pre><code>atg([1, 2], [3], 4); // [1, 2, 3, 4]</code></pre>
+
+      <h3><code>.swap(i, j)</code></h3>
+      <p>交换下标 <code>i</code>、<code>j</code> 的元素，越界则忽略。</p>
+      <pre><code>[1, 2, 3].swap(0, 2); // [3, 2, 1]</code></pre>
+
+      <h3><code>.clear()</code></h3>
+      <p>清空数组。</p>
+      <pre><code>arr.clear(); // arr.length === 0</code></pre>
+
+      <h3><code>.uni()</code></h3>
+      <p>去重，返回<strong>新数组</strong>。</p>
+      <pre><code>[1, 1, 2].uni(); // [1, 2]</code></pre>
+
+      <h3><code>.frontAdd(...items)</code> / <code>.backAdd(...items)</code></h3>
+      <p>头部 / 尾部添加。</p>
+      <pre><code>[2].frontAdd(1);   // [1, 2]
+[1].backAdd(2, 3); // [1, 2, 3]</code></pre>
+
+      <h3><code>.frontDelete()</code> / <code>.backDelete()</code></h3>
+      <p>删除头部 / 尾部<strong>一个</strong>元素。</p>
+      <pre><code>[1, 2].frontDelete(); // [2]
+[1, 2].backDelete();  // [1]</code></pre>
+
+      <h3><code>.deleteIndex(index)</code></h3>
+      <p>按下标删除一个元素。</p>
+      <pre><code>[1, 2, 3].deleteIndex(1); // [1, 3]</code></pre>
+
+      <h3><code>.deleteValue(value)</code></h3>
+      <p>删除所有等于 <code>value</code> 的元素。</p>
+      <pre><code>[1, 2, 2, 3].deleteValue(2); // [1, 3]</code></pre>
+
+      <h3><code>.findAll(value)</code></h3>
+      <p>查找所有等于 <code>value</code> 的元素位置信息，返回对象。为避免覆盖原生 <code>find</code>，本库使用 <code>findAll</code>。</p>
+      <pre><code>[1, 2, 2, 3].findAll(2);
+// {
+//   in: true,
+//   firstIndex: 1,
+//   index: [1, 2],
+//   count: 2,
+//   value: 2
+// }</code></pre>
+
+      <h3><code>.change(index, newValue)</code></h3>
+      <p>修改指定下标的值。</p>
+      <pre><code>[1, 2, 3].change(0, 99); // [99, 2, 3]</code></pre>
+    </section>
+
+    <!-- ==================== 对象扩展 ==================== -->
+    <section id="object" data-title="对象扩展">
+      <h2>对象扩展</h2>
+      <p class="warn">扩展 <code>Object.prototype</code> 属于反模式，可能污染所有对象。建议仅在个人项目中使用，生产环境请改用独立工具函数。</p>
+
+      <h3><code>.get(key)</code></h3>
+      <p>获取属性值。</p>
+      <pre><code>({ a: 1 }).get('a'); // 1</code></pre>
+
+      <h3><code>.set(key, value)</code></h3>
+      <p>设置属性并返回 <code>this</code>。</p>
+      <pre><code>({}).set('a', 1).set('b', 2); // { a: 1, b: 2 }</code></pre>
+    </section>
+
+    <!-- ==================== AJAX ==================== -->
+    <section id="ajax" data-title="AJAX">
+      <h2>AJAX</h2>
+      <p>基于 <code>XMLHttpRequest</code> 的简易封装，<code>ajax.xhr</code> 为内部实例。</p>
+
+      <h3><code>ajax.get(url, callback)</code></h3>
+      <table>
+        <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>url</code></td><td>string</td><td>请求地址</td></tr>
+          <tr><td><code>callback</code></td><td><code>(err, responseText) =&gt; void</code></td><td>回调</td></tr>
+        </tbody>
+      </table>
+      <pre><code>ajax.get('/api/user', (err, res) =&gt; {
+  if (err) return console.error(err);
+  console.log(res);
+});</code></pre>
+
+      <h3><code>ajax.post(url, data, callback)</code></h3>
+      <p>发送 JSON 数据，自动设置 <code>Content-Type: application/json</code>。</p>
+      <pre><code>ajax.post('/api/user', { name: 'Tom' }, (err, res) =&gt; {
+  if (err) return console.error(err);
+  console.log(res);
+});</code></pre>
+
+      <h3><code>ajax.open(...args)</code> / <code>ajax.send(...args)</code></h3>
+      <p>直接代理 <code>xhr.open</code> / <code>xhr.send</code>，用于自定义请求。</p>
+      <pre><code>ajax.xhr.open('PUT', '/api/x', true);
+ajax.xhr.setRequestHeader('Content-Type', 'application/json');
+ajax.send(JSON.stringify({ a: 1 }));</code></pre>
+
+      <h3><code>ajax.xhr</code></h3>
+      <p>底层 <code>XMLHttpRequest</code> 实例，可直接访问。</p>
+      <pre><code>ajax.xhr.timeout = 5000;
+ajax.xhr.onerror = () =&gt; console.error('network error');</code></pre>
+    </section>
+
+    <!-- ==================== 路由 ==================== -->
+    <section id="router" data-title="路由 t.router">
+      <h2>路由 <code>t.router</code></h2>
+      <p>基于 <code>history.pushState</code> 的极简前端路由。</p>
+
+      <h3><code>t.router.register(path, handler)</code></h3>
+      <p>注册路由，返回 <code>this</code>（链式）。</p>
+      <pre><code>t.router
+  .register('/', () =&gt; renderHome())
+  .register('/about', () =&gt; renderAbout())
+  .register('/404', () =&gt; render404());</code></pre>
+
+      <h3><code>t.router.navigate(path, [silent])</code></h3>
+      <p>导航到指定路径：执行匹配的 <code>handler</code>（无匹配则找 <code>/404</code>，再没有则警告），非 silent 时 <code>history.pushState</code>。返回 <code>this</code>。</p>
+      <pre><code>t.router.navigate('/about');</code></pre>
+
+      <h3><code>t.router.init()</code></h3>
+      <p>初始化路由：监听 <code>popstate</code>，并导航到当前 <code>location.pathname</code>（silent）。重复调用不会重复绑定。返回 <code>this</code>。</p>
+      <pre><code>t.router.init();</code></pre>
+
+      <h3><code>t.router.destroy()</code></h3>
+      <p>移除 <code>popstate</code> 监听，重置初始化状态。返回 <code>this</code>。</p>
+      <pre><code>t.router.destroy();</code></pre>
+
+      <h3><code>t.router.routes</code></h3>
+      <p>路由表对象（<code>{ path: handler }</code>），可直接读取或修改。</p>
+      <pre><code>console.log(t.router.routes); // { '/': fn, '/about': fn }</code></pre>
+    </section>
+
+    <!-- ==================== 注意事项 ==================== -->
+    <section id="notes" data-title="注意事项">
+      <h2>注意事项与已知限制</h2>
+      <ol class="notes-list">
+        <li>
+          <strong>原型污染</strong>
+          本库扩展了 <code>Element</code>、<code>NodeList</code>、<code>Array</code>、<code>Object</code> 原型。
+          尤其 <code>Object.prototype.get/set</code> 会影响所有对象，建议生产环境替换为独立函数：
+          <pre><code>const objGet = (o, k) =&gt; o[k];
+const objSet = (o, k, v) =&gt; (o[k] = v, o);</code></pre>
+        </li>
+        <li>
+          <strong><code>findAll</code> 而非 <code>find</code></strong>
+          为避免覆盖原生 <code>Array.prototype.find</code>，查找方法命名为 <code>findAll</code>。
+        </li>
+        <li>
+          <strong>动画实现</strong>
+          使用 <code>setInterval</code> 分步补间，非 <code>requestAnimationFrame</code>；同一元素动画互斥，进行中再次调用会被跳过。
+        </li>
+        <li>
+          <strong>AJAX</strong>
+          基于 <code>XMLHttpRequest</code>，不支持 Promise / async-await，需使用回调；非 200 状态通过 <code>callback(err)</code> 返回 <code>Error</code>。
+        </li>
+        <li>
+          <strong>路由</strong>
+          精确匹配，不支持动态参数（如 <code>/user/:id</code>）与通配符；<code>navigate</code> 的 <code>silent</code> 参数仅供 <code>popstate</code> 内部使用。
+        </li>
+        <li>
+          <strong>浏览器兼容</strong>
+          依赖 <code>classList</code>、<code>history.pushState</code>、<code>querySelectorAll</code>、<code>XMLHttpRequest</code>，面向现代浏览器。
+        </li>
+        <li>
+          <strong>严格模式</strong>
+          已移除隐式全局变量，可在 <code>'use strict'</code> 下运行。
+        </li>
+      </ol>
+    </section>
+
+  </main>
+</div>
+
+<script src="js/script.js"></script>
+</body>
+</html>
